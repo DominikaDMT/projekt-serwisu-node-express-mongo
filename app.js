@@ -1,16 +1,31 @@
 var createError = require('http-errors');
+var cookieSession = require('cookie-session')
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var config = require('./config')
+var mongoose = require('mongoose');
+
+// połączenie z bazą danych przed importem route'ów:
+mongoose.connect(config.db, {useNewUrlParser: true, useUnifiedTopology: true})
+
+// sprawdzenie czy jest połączenie z db
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function() {
+//   console.log('db connected');
+// })
+
 
 var indexRouter = require('./routes/index');
 var newsRouter = require('./routes/news');
 var quizRouter = require('./routes/quiz');
 var adminRouter = require('./routes/admin');
 
-
 var app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -21,6 +36,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+// dot. utrzymania sesji:
+app.use(cookieSession({
+  name: 'session',
+  keys: config.keySession,
+  maxAge: config.maxAge
+}))
+
+
 
 // utworzymy teraz funkcję, która będzie routem (uproszczonym), ona będzie z requestu pobierała aktualny adres strony i będzie on przekazywany do każdego widoku - pobieramy, przypisujemy zmienną, która będzie przekazywana do wszystkich widoków i puszczamy skrypt dalej (metoda next - sprawia, że skrypt nie zatryma się na danym routingu, tylko pójdzie do pozostałych )
 
