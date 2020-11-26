@@ -8,10 +8,10 @@ router.get('/', (req, res) => {
   // Pobranie danych z wyszukiwarki
   console.log(req.query);
   const search = req.query.search || '';
-  const sort = req.query.sort || '-1';
+  let sort = req.query.sort || defaultSort;
 
   if (sort !== -1 || sort !== 1 ) {
-    sort = defaultSort
+    sort = defaultSort;
   }
 
   const findNews = News
